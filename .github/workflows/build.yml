@@ -43,8 +43,12 @@ jobs:
       - name: Manually Install AIDL
         run: |
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-          yes | sdkmanager --install "build-tools;33.0.2" "platforms;android-33"
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$PATH
+          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+          yes | sdkmanager --install "platforms;android-33" "build-tools;33.0.2" "cmdline-tools;latest"
+          ls -lah $ANDROID_HOME/build-tools/31.0.0
+          ls -lah $ANDROID_HOME/build-tools/33.0.2
+
 
       - name: Setup Buildozer & Fix Missing Directories
         run: |
