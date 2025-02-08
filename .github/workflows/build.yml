@@ -1,3 +1,56 @@
+name: Build Ony Downloader APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update && sudo apt install -y python3-pip python3-setuptools python3-wheel \
+            zip unzip libffi-dev libssl-dev autoconf automake cmake pkg-config \
+            libtool zlib1g-dev git openjdk-17-jdk
+          pip install --upgrade pip setuptools wheel cython virtualenv
+
+      - name: Setup Buildozer & Fix Missing Directories
+        run: |
+          pip uninstall buildozer python-for-android -y
+          rm -rf ~/.buildozer .buildozer
+          pip install buildozer python-for-android
+          mkdir -p .buildozer/android/platform/
+
       - name: Manually Install python-for-android
         run: |
           pip install --force-reinstall python-for-android
+
+      - name: Ensure python-for-android Exists
+        run: |
+          mkdir -p .buildozer/android/platform/python-for-android
+
+      - name: Initialize Buildozer
+        run: buildozer init
+
+      - name: Build APK
+        run: |
+          buildozer android clean
+          buildozer -v android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ony-Downloader-APK
+          path: bin/*.apk
