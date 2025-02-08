@@ -40,6 +40,12 @@ jobs:
           yes | sdkmanager --licenses
           yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "build-tools;33.0.2" "cmdline-tools;latest"
 
+      - name: Manually Install AIDL
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          yes | sdkmanager --install "build-tools;33.0.2" "platforms;android-33"
+
       - name: Setup Buildozer & Fix Missing Directories
         run: |
           pip uninstall buildozer python-for-android -y
