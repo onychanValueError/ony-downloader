@@ -12,20 +12,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
 
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y python3-pip git zip unzip openjdk-17-jdk \
             autoconf build-essential ccache cmake pkg-config libtool \
-            zlib1g-dev libncurses5 libncurses5-dev
+            zlib1g-dev libncurses6 libncurses-dev
           pip install --upgrade pip setuptools wheel
-          pip install cyth
+          pip install cython buildozer
+
+      - name: Setup Buildozer
+        run: |
+          buildozer init  # Jika belum ada buildozer.spec
+          buildozer android clean
+
+      - name: Build APK
+        run: buildozer -v android debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ony-Downloader-APK
+          path: bin/*.apk
