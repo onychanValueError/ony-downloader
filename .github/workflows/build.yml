@@ -87,6 +87,13 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           find $ANDROID_HOME -name "aidl"
 
+      - name: Fix AIDL Path
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/build-tools/33.0.2:$PATH
+          export PATH=$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/build-tools/33.0.2:$PATH
+    
+          which aidl || echo "AIDL NOT FOUND!"
 
       - name: Build APK
         run: |
