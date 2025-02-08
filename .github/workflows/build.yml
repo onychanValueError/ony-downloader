@@ -40,15 +40,15 @@ jobs:
           yes | sdkmanager --licenses
           yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "build-tools;33.0.2" "cmdline-tools;latest"
 
-      - name: Manually Install AIDL
+      - name: Install AIDL
         run: |
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$PATH
-          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
-          yes | sdkmanager --install "platforms;android-33" "build-tools;33.0.2" "cmdline-tools;latest"
+          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "cmdline-tools;latest"
+          yes | sdkmanager --install "platforms;android-33" "build-tools;33.0.2"
           ls -lah $ANDROID_HOME/build-tools/31.0.0
           ls -lah $ANDROID_HOME/build-tools/33.0.2
-
+          find $ANDROID_HOME -name "aidl"
 
       - name: Setup Buildozer & Fix Missing Directories
         run: |
@@ -68,6 +68,13 @@ jobs:
       - name: Initialize Buildozer
         run: buildozer init
 
+      - name: Fix AIDL Path
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+          echo "export PATH=$PATH" >> ~/.bashrc
+          echo "AIDL PATH:" && which aidl
+          
       - name: Build APK
         run: |
           buildozer android clean
