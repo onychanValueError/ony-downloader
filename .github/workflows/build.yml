@@ -1,10 +1,7 @@
-name: Build Ony Downloader APK
+name: Build Kivy App
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -14,13 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.9"
 
       - name: Install dependencies
         run: |
@@ -29,21 +21,36 @@ jobs:
             git zip unzip openjdk-17-jdk \
             autoconf automake cmake libtool pkg-config \
             python3 python3-pip python3-setuptools \
-            python3-wheel python3-venv
+            python3-wheel python3-venv android-sdk adb aidl
 
           pip install --upgrade pip
           pip install cython buildozer
 
+      - name: Install Android SDK & Set Paths
+        run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
+          
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip sdk-tools.zip -d $ANDROID_HOME/cmdline-tools
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          
+          yes | sdkmanager --licenses
+          sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "extras;google;m2repository"
+
       - name: Initialize Buildozer
         run: |
           buildozer init
+          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
 
       - name: Build APK
-        run: |
-          buildozer android debug
+        run: buildozer -v android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: OnyDownloader-APK
           path: bin/*.apk
