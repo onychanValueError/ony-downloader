@@ -24,32 +24,37 @@ jobs:
           sudo apt update && sudo apt install -y python3-pip python3-setuptools python3-wheel \
             zip unzip libffi-dev libssl-dev autoconf automake cmake pkg-config \
             libtool zlib1g-dev git openjdk-17-jdk
+
           pip install --upgrade pip setuptools wheel cython virtualenv
 
       - name: Install Android SDK & Build-Tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk unzip
+          # Buat folder Android SDK jika belum ada
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
+
+          # Download Android command line tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O sdk-tools.zip
           unzip sdk-tools.zip
           mv cmdline-tools latest
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-          yes | sdkmanager --licenses
-          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "build-tools;33.0.2" "cmdline-tools;latest"
 
-      - name: Install AIDL
-        run: |
+          # Set environment variables
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$PATH
+
+          # Perbaiki path jika cmdline-tools terinstall di lokasi salah
+          if [ -d "$ANDROID_HOME/cmdline-tools/latest-2" ]; then
+            mv $ANDROID_HOME/cmdline-tools/latest-2 $ANDROID_HOME/cmdline-tools/latest
+          fi
+
+          # Install SDKs dan Build Tools
+          yes | sdkmanager --licenses
           yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "cmdline-tools;latest"
           yes | sdkmanager --install "platforms;android-33" "build-tools;33.0.2"
-          ls -lah $ANDROID_HOME/build-tools/31.0.0
-          ls -lah $ANDROID_HOME/build-tools/33.0.2
-          find $ANDROID_HOME -name "aidl"
 
+          # Cek apakah AIDL sudah terinstall
+          find $ANDROID_HOME -name "aidl"
+          
       - name: Setup Buildozer & Fix Missing Directories
         run: |
           pip uninstall buildozer python-for-android -y
@@ -68,47 +73,11 @@ jobs:
       - name: Initialize Buildozer
         run: buildozer init
 
-      - name: Fix AIDL Path
-        run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-          echo "export PATH=$PATH" >> ~/.bashrc
-          echo "AIDL PATH:" && which aidl
-          
-      - name: Fix Buildozer Android SDK Path
-        run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-          echo "export ANDROID_HOME=$HOME/android-sdk" >> ~/.bashrc
-          echo "export PATH=$PATH" >> ~/.bashrc
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk
-          ln -s $ANDROID_HOME/build-tools $HOME/.buildozer/android/platform/android-sdk/build-tools
-          ln -s $ANDROID_HOME/platform-tools $HOME/.buildozer/android/platform/android-sdk/platform-tools
-          ln -s $ANDROID_HOME/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
-          echo "AIDL PATH:" && which aidl
-          ls -lah $HOME/.buildozer/android/platform/android-sdk/build-tools
-          
-      - name: Fix Android SDK Path
-        run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export ANDROID_SDK_ROOT=$ANDROID_HOME
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$PATH
-          
-          echo "export ANDROID_HOME=$HOME/android-sdk" >> ~/.bashrc
-          echo "export ANDROID_SDK_ROOT=$ANDROID_HOME" >> ~/.bashrc
-          echo "export PATH=$PATH" >> ~/.bashrc
-
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk
-          ln -s $ANDROID_HOME/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
-          ln -s $ANDROID_HOME/platform-tools $HOME/.buildozer/android/platform/android-sdk/platform-tools
-          ln -s $ANDROID_HOME/build-tools $HOME/.buildozer/android/platform/android-sdk/build-tools
-          
-          yes | sdkmanager --licenses
-          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
-
-
       - name: Build APK
         run: |
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$PATH
+
           buildozer android clean
           buildozer -v android debug
 
