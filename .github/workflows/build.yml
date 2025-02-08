@@ -38,7 +38,7 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
           yes | sdkmanager --licenses
-          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0" "build-tools;33.0.2" "cmdline-tools;latest"
 
       - name: Setup Buildozer & Fix Missing Directories
         run: |
