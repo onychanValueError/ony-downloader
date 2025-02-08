@@ -26,6 +26,10 @@ jobs:
             libtool zlib1g-dev git openjdk-17-jdk
           pip install --upgrade pip setuptools wheel cython virtualenv
 
+      - name: Install Android SDK Build-Tools
+        run: |
+          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+
       - name: Setup Buildozer & Fix Missing Directories
         run: |
           pip uninstall buildozer python-for-android -y
