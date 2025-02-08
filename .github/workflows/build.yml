@@ -25,15 +25,19 @@ jobs:
             zlib1g-dev libncurses6 libncurses-dev
           pip install --upgrade pip setuptools wheel
           pip install --upgrade buildozer cython virtualenv python-for-android
-      
+
       - name: Setup Buildozer
         run: |
           buildozer init  # Buat buildozer.spec jika belum ada
           rm -rf .buildozer  # Hapus folder lama untuk mencegah error
+          mkdir -p .buildozer/android/platform/  # Pastikan direktori ada
+          pip install python-for-android --force-reinstall  # Reinstall P4A
           buildozer android clean
 
       - name: Build APK
-        run: buildozer -v android debug
+        run: |
+          pip install --upgrade python-for-android  # Pastikan terinstall
+          buildozer -v android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
