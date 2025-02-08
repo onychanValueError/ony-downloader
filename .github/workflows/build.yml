@@ -24,11 +24,12 @@ jobs:
             autoconf build-essential ccache cmake pkg-config libtool \
             zlib1g-dev libncurses6 libncurses-dev
           pip install --upgrade pip setuptools wheel
-          pip install cython buildozer
-
+          pip install --upgrade buildozer cython virtualenv python-for-android
+      
       - name: Setup Buildozer
         run: |
-          buildozer init  # Jika belum ada buildozer.spec
+          buildozer init  # Buat buildozer.spec jika belum ada
+          rm -rf .buildozer  # Hapus folder lama untuk mencegah error
           buildozer android clean
 
       - name: Build APK
