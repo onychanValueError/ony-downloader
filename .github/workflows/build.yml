@@ -73,36 +73,15 @@ jobs:
       - name: Initialize Buildozer
         run: buildozer init
 
-      - name: Fix Buildozer Android SDK Path
+      - name: Fix Android SDK Paths
         run: |
           export ANDROID_HOME=$HOME/android-sdk
-          export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-          echo "export ANDROID_HOME=$HOME/android-sdk" >> ~/.bashrc
-          echo "export PATH=$PATH" >> ~/.bashrc
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk
-          ln -s $ANDROID_HOME/build-tools $HOME/.buildozer/android/platform/android-sdk/build-tools
-          ln -s $ANDROID_HOME/platform-tools $HOME/.buildozer/android/platform/android-sdk/platform-tools
-          ln -s $ANDROID_HOME/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
-          echo "AIDL PATH:" && which aidl
-          ls -lah $HOME/.buildozer/android/platform/android-sdk/build-tools
-          
-      - name: Fix Android SDK Path
-        run: |
-          export ANDROID_HOME=$HOME/android-sdk
-          export ANDROID_SDK_ROOT=$ANDROID_HOME
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$PATH
-          
-          echo "export ANDROID_HOME=$HOME/android-sdk" >> ~/.bashrc
-          echo "export ANDROID_SDK_ROOT=$ANDROID_HOME" >> ~/.bashrc
-          echo "export PATH=$PATH" >> ~/.bashrc
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/31.0.0:$ANDROID_HOME/build-tools/33.0.2:$PATH
 
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk
-          ln -s $ANDROID_HOME/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/cmdline-tools
-          ln -s $ANDROID_HOME/platform-tools $HOME/.buildozer/android/platform/android-sdk/platform-tools
-          ln -s $ANDROID_HOME/build-tools $HOME/.buildozer/android/platform/android-sdk/build-tools
-          
-          yes | sdkmanager --licenses
-          yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+          echo "Checking sdkmanager path..."
+          ls -lah $ANDROID_HOME/cmdline-tools/latest/bin/
+          which sdkmanager || echo "sdkmanager NOT FOUND!"
+
 
       - name: Build APK
         run: |
