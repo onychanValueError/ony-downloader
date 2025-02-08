@@ -26,8 +26,18 @@ jobs:
             libtool zlib1g-dev git openjdk-17-jdk
           pip install --upgrade pip setuptools wheel cython virtualenv
 
-      - name: Install Android SDK Build-Tools
+      - name: Install Android SDK & Build-Tools
         run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk unzip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O sdk-tools.zip
+          unzip sdk-tools.zip
+          mv cmdline-tools latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          yes | sdkmanager --licenses
           yes | sdkmanager --install "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
       - name: Setup Buildozer & Fix Missing Directories
