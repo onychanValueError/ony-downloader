@@ -1,0 +1,4 @@
+flask
+pytube
+pytubefix
+gunicorn
